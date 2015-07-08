@@ -1,45 +1,29 @@
-from sqlalchemy import create_engine
+import sys
+from sqlalchemy import *
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import Column, Integer, String, Date
-from sqlalchemy import ForeignKey
-from sqlalchemy.orm import relationship, backref
+from sqlalchemy.orm import relationship
+from sqlalchemy import create_engine
+from sqlalchemy.orm import relationship, backref, sessionmaker
 
 #creates data base with the following attributes:(show the paper)
-#First name, Last name, EGN, Room type, Prize for a night,Prize for breakfast, Number of Accomodators, Check-in date, Check-out date, Breakfast, Children
-engine = create_engine('sqlite:///:memory:', echo=True)
+#Firstname, Last name, EGN, Room type, Prize for a night,Prize for breakfast, Number of Accomodators, Check-in date, Check-out date, Breakfast, Children
 Base = declarative_base()
+engine = create_engine("sqlite:///:memory:")
+Base.metadata.create_all(engine, checkfirst=True)
+Session = sessionmaker(bind=engine)
+session = Session()
 class ReservationDB(Base):
 	__tablename__ = 'reservation'
 	EGN = Column(String, primary_key = True)
-	numberRoom = Column(String, ForeignKey('Room.roomNumber'))
-	breakfastAdult = Column(String)
-	breakfastChild = Column(String)
-	dateCheckIn = Column(Date)
-	dateCheckOut = Column(Date)
+	first_name = Column(String)
+	last_name = Column(String)
+	room_number = Column(String)
+	room_type = Column(String)
+	breakfast = Column(String)
+	date_check_in = Column(Date)
+	date_check_out = Column(Date)
 	prize = Column(Integer)
 	children = Column(String)
-
-	room = relationship("Room", backref = backref('reservation'))
-
-class Room(Base):
-	__tablename__ = 'room'
-	roomNumber = Column(String, primary_key = True)
-	roomType = Column(String)
-	prize = Column(Integer)
-
-	reservationRoomNumber = Column(String, ForeignKey('ReservationDB.numberRoom'))
-
-	reservation = relationship("ReservationDB", backref = backref('room'))
-
-class Person(Base):
-	__tablename__ = 'people'
-	firstName = Column(String)
-	lastName = Column(String)
-	personEGN = Column(String, primary_key = True)
-
-	reservationEGN = Column(String, ForeignKey('ReservationDB.EGN'))
-
-	reserve = relationship("ReservationDB", backref = backref('people'))
 
 
 
@@ -51,7 +35,7 @@ class HotelReservation(object):
 	def make_reservation(self):
 		pass
 		#creates Reservation object 
-		#the method needs first_name, last_name, egn, room_type, number_of_accomodators, check-in_date, check-out_date
+		#the method needs first_name, last_name, egn, room_type, check-in_date, check-out_date
 		#if information is given, breakfast reservation is written in the object attributes
 		#the method returns the created object
 	
@@ -97,8 +81,15 @@ class HotelReservation(object):
 
 
 class Reservation(object):
-	def __init__(self):
-		pass
+	def __init__(self, first_name, last_name, egn, room_type, check_in_date, check_out_date, children, breakfast):
+		self.f_name = first_name
+		self.last_name = last_name
+		self.egn = egn
+		self.room_t = room_type
+		self.check_in_date = check_in_date
+		self.check_out_date = check_out_date
+		self.children = children
+		self.breakfast = breakfast
 		
 #Reservation object will have the following attributes:
 #first_name, last_name, egn, room_type, check-in_date, check-out_date, number_of_accomodators, children, breakfast
